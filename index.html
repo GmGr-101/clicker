@@ -64,9 +64,11 @@
 
 <script>
 (() => {
+const bigFoodImage = new Image();
+	bigFoodImage.src = 'BF.png'; 
+
   const canvas = document.getElementById('game');
   const ctx = canvas.getContext('2d');
-
   const gridSize = 20; // size of each square
   const tileCount = canvas.width / gridSize;
 
@@ -93,8 +95,14 @@
 	
 	// Draw big food
 	if (bigFood) {
-	ctx.fillStyle = 'blue'; // Big food is blue
-	ctx.fillRect(bigFood.x * gridSize, bigFood.y * gridSize, gridSize, gridSize);}
+		if (bigFoodImage.complete) {
+			ctx.drawImage(bigFoodImage, bigFood.x * gridSize, bigFood.y * gridSize, gridSize, gridSize);
+		} else {
+			// fallback in case image hasn't loaded yet
+			ctx.fillStyle = 'blue';
+			ctx.fillRect(bigFood.x * gridSize, bigFood.y * gridSize, gridSize, gridSize);
+		}
+	}
 
 
     // Draw snake
