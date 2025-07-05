@@ -20,15 +20,15 @@
     margin-top: 20px;
   }
   .controls {
-    margin-top: 15px;
+    margin-top: 50px;
     display: grid;
-    grid-template-columns: repeat(3, 60px);
-    grid-template-rows: repeat(2, 60px);
-    gap: 10px;
+    grid-template-columns: repeat(3, 70px);
+    grid-template-rows: repeat(3, 70px);
+    gap: 15px;
   }
   button {
-    font-size: 20px;
-    border-radius: 8px;
+    font-size: 50px;
+    border-radius: 10px;
     border: 2px solid #333;
     background: #eee;
     cursor: pointer;
@@ -48,12 +48,15 @@
 <canvas id="game" width="400" height="400"></canvas>
 
 <div class="controls" aria-label="Game Controls">
+  <button class="empty" disabled></button>
   <button id="up" aria-label="Move Up">▲</button>
   <button class="empty" disabled></button>
-  <button id="right" aria-label="Move Right">▶</button>
   <button id="left" aria-label="Move Left">◀</button>
-  <button id="down" aria-label="Move Down">▼</button>
   <button class="empty" disabled></button>
+  <button id="right" aria-label="Move Right">▶</button>
+  <button class="empty" disabled></button>
+  <button id="down" aria-label="Move Down">▼</button>
+  
 </div>
 
 <script>
