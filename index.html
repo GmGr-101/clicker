@@ -1,48 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Simple Snake Game</title>
-<style>
-  body {
-    margin: 0; 
-    background: url('https://i.pinimg.com/736x/77/23/4d/77234d3475c2f3194f7254bd6379a38c.jpg') center center no-repeat;
-	background-size: cover;
-    font-family: Arial, sans-serif;
-    display: flex; 
-    flex-direction: column;
-    align-items: center;
-    user-select: none;
-  }
-  canvas {
-    
-	border-radius: 10px;
-    border: 3px solid #333;
-    margin-top: 10px;
-  }
-  .controls {
-    margin-top: 50px;
-    display: grid;
-    grid-template-columns: repeat(3, 90px);
-    grid-template-rows: repeat(3, 90px);
-    gap: 15px;
-  }
-  button {
-    font-size: 50px;
-    border-radius: 100px;
-    border: 2px solid #333;
-    background: lightgray;
-    cursor: pointer;
-    user-select: none;
-  }
-  button:active {
-    background: #ccc;
-  }
-  .empty {
-    visibility: hidden;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fixed Snake Game</title>
+  <style>
+    body {
+      margin: 0;
+      background: url('https://i.pinimg.com/736x/77/23/4d/77234d3475c2f3194f7254bd6379a38c.jpg') center center no-repeat;
+      background-size: cover;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      user-select: none;
+    }
+    canvas {
+      border-radius: 10px;
+      border: 3px solid #333;
+      margin-top: 10px;
+    }
+    .controls {
+      margin-top: 50px;
+      display: grid;
+      grid-template-columns: repeat(3, 90px);
+      grid-template-rows: repeat(3, 90px);
+      gap: 15px;
+    }
+    button {
+      font-size: 50px;
+      border-radius: 100px;
+      border: 2px solid #333;
+      background: lightgray;
+      cursor: pointer;
+      user-select: none;
+    }
+    button:active {
+      background: #ccc;
+    }
+    .empty {
+      visibility: hidden;
+    }
+  </style>
 </head>
 <body>
 
@@ -59,76 +58,29 @@
   <button id="right" aria-label="Move Right">▶</button>
   <button class="empty" disabled></button>
   <button id="down" aria-label="Move Down">▼</button>
-  
 </div>
 
+<!-- MAIN GAME SCRIPT -->
 <script>
 (() => {
-const bigFoodImage = new Image();
-	bigFoodImage.src = 'BF.png'; 
-const bigFoodSize = 2;
   const canvas = document.getElementById('game');
   const ctx = canvas.getContext('2d');
-  const gridSize = 20; // size of each square
+  const gridSize = 10;
   const tileCount = canvas.width / gridSize;
+  const bigFoodSize = 3;
+  const bigFoodImage = new Image();
+  bigFoodImage.src = 'BF.png'; // Use your image path
 
-  let snake = [
-    { x: 9, y: 9 },
-  ];
-  let bigFood = null;
+  let snake = [{ x: 9, y: 9 }];
   let velocity = { x: 0, y: 0 };
   let food = { x: 5, y: 5 };
+  let bigFood = null;
   let score = 0;
-
   let lastMoveTime = 0;
-  const moveInterval = 150; // milliseconds
+  const moveInterval = 150;
+  let obstacles = [];
+  let obstacleThreshold = 5;
 
-  // Draw everything
-  function draw() {
-    // White background
-    ctx.fillStyle = 'lightgray';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Draw food
-    ctx.fillStyle = 'red';
-    ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize, gridSize);
-	
-	// Draw big food
-	if (bigFood) {
-		if (bigFoodImage.complete) {
-			ctx.drawImage(
-				bigFoodImage,
-				bigFood.x * gridSize,
-				bigFood.y * gridSize,
-				gridSize * bigFoodSize,
-				gridSize * bigFoodSize
-			);
-		} else {
-			ctx.fillStyle = 'blue';
-			ctx.fillRect(
-				bigFood.x * gridSize,
-				bigFood.y * gridSize,
-				gridSize * bigFoodSize,
-				gridSize * bigFoodSize
-			);
-		}
-	}
-
-
-
-    // Draw snake
-    ctx.fillStyle = 'white';
-    for (const segment of snake) {
-      ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
-    }
-
-    // Draw score
-    ctx.fillStyle = '#333';
-    ctx.font = '20px Arial';
-    ctx.fillText(`Score: ${score}`, 10, 25);
-  }
-
-  // Place new food somewhere not on snake
   function placeFood() {
     let valid = false;
     while (!valid) {
@@ -137,30 +89,85 @@ const bigFoodSize = 2;
       valid = !snake.some(s => s.x === food.x && s.y === food.y);
     }
   }
-  
-	function placeBigFood() {
-		let valid = false;
-		let newX, newY;
-		while (!valid) {
-			newX = Math.floor(Math.random() * (tileCount - bigFoodSize));
-			newY = Math.floor(Math.random() * (tileCount - bigFoodSize));
 
-			// Make sure no part of big food overlaps the snake
-			valid = true;
-			for (let dx = 0; dx < bigFoodSize; dx++) {
-				for (let dy = 0; dy < bigFoodSize; dy++) {
-					if (snake.some(s => s.x === newX + dx && s.y === newY + dy)) {
-						valid = false;
-					}
-				}
-			}
-		}
-		bigFood = { x: newX, y: newY };
-	}
+  function placeBigFood() {
+    let valid = false;
+    let newX, newY;
+    while (!valid) {
+      newX = Math.floor(Math.random() * (tileCount - bigFoodSize));
+      newY = Math.floor(Math.random() * (tileCount - bigFoodSize));
+      valid = true;
+      for (let dx = 0; dx < bigFoodSize; dx++) {
+        for (let dy = 0; dy < bigFoodSize; dy++) {
+          if (snake.some(s => s.x === newX + dx && s.y === newY + dy)) {
+            valid = false;
+          }
+        }
+      }
+    }
+    bigFood = { x: newX, y: newY };
+  }
 
+  function placeObstacle() {
+    let valid = false, ox, oy;
+    while (!valid) {
+      ox = Math.floor(Math.random() * tileCount);
+      oy = Math.floor(Math.random() * tileCount);
+      valid = !snake.some(s => s.x === ox && s.y === oy) &&
+              (food.x !== ox || food.y !== oy) &&
+              !obstacles.some(o => o.x === ox && o.y === oy);
+    }
+    obstacles.push({ x: ox, y: oy });
+  }
 
+  function resetGame() {
+    snake = [{ x: 9, y: 9 }];
+    velocity = { x: 0, y: 0 };
+    score = 0;
+    bigFood = null;
+    obstacles = [];
+    obstacleThreshold = 10;
+    placeFood();
+    lastMoveTime = 0;
+    requestAnimationFrame(update);
+  }
 
-  // Update snake position
+  function draw() {
+    ctx.fillStyle = 'lightgray';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Food
+    ctx.fillStyle = 'red';
+    ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize, gridSize);
+
+    // Big Food
+    if (bigFood) {
+      if (bigFoodImage.complete) {
+        ctx.drawImage(bigFoodImage, bigFood.x * gridSize, bigFood.y * gridSize, gridSize * bigFoodSize, gridSize * bigFoodSize);
+      } else {
+        ctx.fillStyle = 'blue';
+        ctx.fillRect(bigFood.x * gridSize, bigFood.y * gridSize, gridSize * bigFoodSize, gridSize * bigFoodSize);
+      }
+    }
+
+    // Obstacles
+    ctx.fillStyle = 'black';
+    for (const obs of obstacles) {
+      ctx.fillRect(obs.x * gridSize, obs.y * gridSize, gridSize, gridSize);
+    }
+
+    // Snake
+    ctx.fillStyle = 'white';
+    for (const segment of snake) {
+      ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
+    }
+
+    // Score
+    ctx.fillStyle = '#333';
+    ctx.font = '20px Arial';
+    ctx.fillText(`Score: ${score}`, 10, 25);
+  }
+
   function update(time) {
     if (!lastMoveTime) lastMoveTime = time;
     const delta = time - lastMoveTime;
@@ -173,81 +180,72 @@ const bigFoodSize = 2;
     if (velocity.x === 0 && velocity.y === 0) {
       draw();
       requestAnimationFrame(update);
-      return; // no movement yet
+      return;
     }
 
-    // New head position
     const head = { x: snake[0].x + velocity.x, y: snake[0].y + velocity.y };
 
-    // Check wall collision (wrap around)
+    // Wrap
     if (head.x < 0) head.x = tileCount - 1;
     if (head.x >= tileCount) head.x = 0;
     if (head.y < 0) head.y = tileCount - 1;
     if (head.y >= tileCount) head.y = 0;
 
-    // Check collision with self
+    // Obstacle collision
+    if (obstacles.some(o => o.x === head.x && o.y === head.y)) {
+      alert(`Game Over! You hit an obstacle. Score: ${score}`);
+      resetGame();
+      return;
+    }
+
+    // Self collision
     if (snake.some(s => s.x === head.x && s.y === head.y)) {
       alert(`Game Over! Your score: ${score}`);
       resetGame();
       return;
     }
 
-    // Add new head
     snake.unshift(head);
 
-    // Check food
     if (head.x === food.x && head.y === food.y) {
-		score++;
-		placeFood();
+      score++;
+      placeFood();
+      if (score % 10 === 0 && !bigFood) {
+        placeBigFood();
+      }
+    } else if (
+      bigFood &&
+      head.x >= bigFood.x && head.x < bigFood.x + bigFoodSize &&
+      head.y >= bigFood.y && head.y < bigFood.y + bigFoodSize
+    ) {
+      score += 5;
+      bigFood = null;
+    } else {
+      snake.pop();
+    }
 
-		// Every 10 points: add big food
-		if (score % 10 === 0 && !bigFood) {
-			placeBigFood();
-		}
-
-	} else if (
-		bigFood &&
-		head.x >= bigFood.x && head.x < bigFood.x + bigFoodSize &&
-		head.y >= bigFood.y && head.y < bigFood.y + bigFoodSize
-	) {
-		score += 5;
-		bigFood = null;
-		}
-	else {
-		snake.pop();
-	}
-
+    // Add obstacle at threshold
+    if (score >= obstacleThreshold) {
+      placeObstacle();
+      obstacleThreshold += 5;
+      
+    }
 
     draw();
     requestAnimationFrame(update);
   }
 
-  // Reset game
-  function resetGame() {
-    snake = [{ x: 9, y: 9 }];
-    velocity = { x: 0, y: 0 };
-    score = 0;
-    placeFood();
-	lastMoveTime = 0;
-	draw();
-	requestAnimationFrame(update);
-  }
-
-  // Control handlers
+  // Controls
   function setDirection(dx, dy) {
-    // Prevent reverse
     if (velocity.x === -dx && velocity.y === -dy) return;
-    velocity.x = dx;
-    velocity.y = dy;
+    velocity = { x: dx, y: dy };
   }
 
-  // Button event listeners
   document.getElementById('up').addEventListener('click', () => setDirection(0, -1));
   document.getElementById('down').addEventListener('click', () => setDirection(0, 1));
   document.getElementById('left').addEventListener('click', () => setDirection(-1, 0));
   document.getElementById('right').addEventListener('click', () => setDirection(1, 0));
 
-  // Keyboard controls for desktop
   window.addEventListener('keydown', e => {
     switch (e.key) {
       case 'ArrowUp': setDirection(0, -1); break;
@@ -257,9 +255,8 @@ const bigFoodSize = 2;
     }
   });
 
-  // Start the game
+  // Start
   resetGame();
-  requestAnimationFrame(update);
 })();
 </script>
 
