@@ -66,7 +66,7 @@
 (() => {
 const bigFoodImage = new Image();
 	bigFoodImage.src = 'BF.png'; 
-
+const bigFoodSize = 3;
   const canvas = document.getElementById('game');
   const ctx = canvas.getContext('2d');
   const gridSize = 20; // size of each square
@@ -96,13 +96,24 @@ const bigFoodImage = new Image();
 	// Draw big food
 	if (bigFood) {
 		if (bigFoodImage.complete) {
-			ctx.drawImage(bigFoodImage, bigFood.x * gridSize, bigFood.y * gridSize, gridSize, gridSize);
+			ctx.drawImage(
+				bigFoodImage,
+				bigFood.x * gridSize,
+				bigFood.y * gridSize,
+				gridSize * bigFoodSize,
+				gridSize * bigFoodSize
+			);
 		} else {
-			// fallback in case image hasn't loaded yet
 			ctx.fillStyle = 'blue';
-			ctx.fillRect(bigFood.x * gridSize, bigFood.y * gridSize, gridSize, gridSize);
+			ctx.fillRect(
+				bigFood.x * gridSize,
+				bigFood.y * gridSize,
+				gridSize * bigFoodSize,
+				gridSize * bigFoodSize
+			);
 		}
 	}
+
 
 
     // Draw snake
@@ -131,12 +142,22 @@ const bigFoodImage = new Image();
 		let valid = false;
 		let newX, newY;
 		while (!valid) {
-			newX = Math.floor(Math.random() * tileCount);
-			newY = Math.floor(Math.random() * tileCount);
-			valid = !snake.some(s => s.x === newX && s.y === newY);
+			newX = Math.floor(Math.random() * (tileCount - bigFoodSize));
+			newY = Math.floor(Math.random() * (tileCount - bigFoodSize));
+
+			// Make sure no part of big food overlaps the snake
+			valid = true;
+			for (let dx = 0; dx < bigFoodSize; dx++) {
+				for (let dy = 0; dy < bigFoodSize; dy++) {
+					if (snake.some(s => s.x === newX + dx && s.y === newY + dy)) {
+						valid = false;
+					}
+				}
+			}
 		}
 		bigFood = { x: newX, y: newY };
 	}
+
 
 
   // Update snake position
@@ -184,11 +205,15 @@ const bigFoodImage = new Image();
 			placeBigFood();
 		}
 
-	} else if (bigFood && head.x === bigFood.x && head.y === bigFood.y) {
+	} else if (
+		bigFood &&
+		head.x >= bigFood.x && head.x < bigFood.x + bigFoodSize &&
+		head.y >= bigFood.y && head.y < bigFood.y + bigFoodSize
+	) {
 		score += 5;
-		bigFood = null; // remove big food after eating
-
-	} else {
+		bigFood = null;
+		}
+	else {
 		snake.pop();
 	}
 
