@@ -7,7 +7,8 @@
 <style>
   body {
     margin: 0; 
-    background: white;
+    background: url('https://i.pinimg.com/736x/77/23/4d/77234d3475c2f3194f7254bd6379a38c.jpg') center center no-repeat;
+	background-size: cover;
     font-family: Arial, sans-serif;
     display: flex; 
     flex-direction: column;
@@ -15,9 +16,10 @@
     user-select: none;
   }
   canvas {
-    background: white;
-    border: 2px solid #333;
-    margin-top: 20px;
+    
+	border-radius: 10px;
+    border: 3px solid #333;
+    margin-top: 10px;
   }
   .controls {
     margin-top: 50px;
@@ -30,7 +32,7 @@
     font-size: 50px;
     border-radius: 10px;
     border: 2px solid #333;
-    background: #eee;
+    background: lightgray;
     cursor: pointer;
     user-select: none;
   }
@@ -45,6 +47,7 @@
 <body>
 
 <h1>Snake Game</h1>
+
 <canvas id="game" width="400" height="400"></canvas>
 
 <div class="controls" aria-label="Game Controls">
@@ -80,7 +83,7 @@
   // Draw everything
   function draw() {
     // White background
-    ctx.fillStyle = 'white';
+    ctx.fillStyle = 'lightgray';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Draw food
@@ -88,7 +91,7 @@
     ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize, gridSize);
 
     // Draw snake
-    ctx.fillStyle = 'green';
+    ctx.fillStyle = 'white';
     for (const segment of snake) {
       ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
     }
