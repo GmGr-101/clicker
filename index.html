@@ -168,6 +168,9 @@
     velocity = { x: 0, y: 0 };
     score = 0;
     placeFood();
+    lastMoveTime = 0;
+    draw();
+    requestAnimationFrame(update);
   }
 
   // Control handlers
