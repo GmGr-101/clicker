@@ -22,8 +22,8 @@
   .controls {
     margin-top: 50px;
     display: grid;
-    grid-template-columns: repeat(3, 90px);
-    grid-template-rows: repeat(3, 90px);
+    grid-template-columns: repeat(4, 90px);
+    grid-template-rows: repeat(4, 90px);
     gap: 15px;
   }
   button {
@@ -38,7 +38,7 @@
     background: #ccc;
   }
   .empty {
-    visibility: hidden;
+    visibility: show;
   }
 </style>
 </head>
@@ -48,14 +48,19 @@
 <canvas id="game" width="400" height="400"></canvas>
 
 <div class="controls" aria-label="Game Controls">
+  <button id="restartBtn" >↺</button>
   <button class="empty" disabled></button>
   <button id="up" aria-label="Move Up">▲</button>
+  <button class="empty" disabled></button>
   <button class="empty" disabled></button>
   <button id="left" aria-label="Move Left">◀</button>
   <button class="empty" disabled></button>
   <button id="right" aria-label="Move Right">▶</button>
   <button class="empty" disabled></button>
+  <button class="empty" disabled></button>
   <button id="down" aria-label="Move Down">▼</button>
+  
+
   
 </div>
 
@@ -178,6 +183,8 @@
   document.getElementById('down').addEventListener('click', () => setDirection(0, 1));
   document.getElementById('left').addEventListener('click', () => setDirection(-1, 0));
   document.getElementById('right').addEventListener('click', () => setDirection(1, 0));
+  document.getElementById('restartBtn').addEventListener('click', () => {resetGame();
+});
 
   // Keyboard controls for desktop
   window.addEventListener('keydown', e => {
