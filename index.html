@@ -43,6 +43,12 @@
     }
   </style>
 </head>
+
+<audio id="eatSound" src="food.mp3"></audio>
+<audio id="deadSound" src="ded.mp3"></audio>
+
+
+
 <body>
 
 <h1>Snake Game</h1>
@@ -70,6 +76,10 @@
   const bigFoodSize = 3;
   const bigFoodImage = new Image();
   bigFoodImage.src = 'BF.png'; // Use your image path
+  const eatSound = document.getElementById('eatSound');
+  const deadSound = document.getElementById('deadSound');
+
+
 
   let snake = [{ x: 9, y: 9 }];
   let velocity = { x: 0, y: 0 };
@@ -193,6 +203,7 @@
 
     // Obstacle collision
     if (obstacles.some(o => o.x === head.x && o.y === head.y)) {
+		deadSound.play();
       alert(`Game Over! You hit an obstacle. Score: ${score}`);
       resetGame();
       return;
@@ -200,6 +211,7 @@
 
     // Self collision
     if (snake.some(s => s.x === head.x && s.y === head.y)) {
+		deadSound.play();
       alert(`Game Over! Your score: ${score}`);
       resetGame();
       return;
@@ -209,6 +221,7 @@
 
     if (head.x === food.x && head.y === food.y) {
       score++;
+	  eatSound.play();
       placeFood();
       if (score % 10 === 0 && !bigFood) {
         placeBigFood();
