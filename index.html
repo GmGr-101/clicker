@@ -73,6 +73,7 @@
   let snake = [
     { x: 9, y: 9 },
   ];
+  let bigFood = null;
   let velocity = { x: 0, y: 0 };
   let food = { x: 5, y: 5 };
   let score = 0;
@@ -89,6 +90,12 @@
     // Draw food
     ctx.fillStyle = 'red';
     ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize, gridSize);
+	
+	// Draw big food
+	if (bigFood) {
+	ctx.fillStyle = 'blue'; // Big food is blue
+	ctx.fillRect(bigFood.x * gridSize, bigFood.y * gridSize, gridSize, gridSize);}
+
 
     // Draw snake
     ctx.fillStyle = 'white';
@@ -111,6 +118,18 @@
       valid = !snake.some(s => s.x === food.x && s.y === food.y);
     }
   }
+  
+	function placeBigFood() {
+		let valid = false;
+		let newX, newY;
+		while (!valid) {
+			newX = Math.floor(Math.random() * tileCount);
+			newY = Math.floor(Math.random() * tileCount);
+			valid = !snake.some(s => s.x === newX && s.y === newY);
+		}
+		bigFood = { x: newX, y: newY };
+	}
+
 
   // Update snake position
   function update(time) {
@@ -149,12 +168,22 @@
 
     // Check food
     if (head.x === food.x && head.y === food.y) {
-      score++;
-      placeFood();
-    } else {
-      // Remove tail
-      snake.pop();
-    }
+		score++;
+		placeFood();
+
+		// Every 10 points: add big food
+		if (score % 10 === 0 && !bigFood) {
+			placeBigFood();
+		}
+
+	} else if (bigFood && head.x === bigFood.x && head.y === bigFood.y) {
+		score += 5;
+		bigFood = null; // remove big food after eating
+
+	} else {
+		snake.pop();
+	}
+
 
     draw();
     requestAnimationFrame(update);
