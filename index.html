@@ -53,6 +53,7 @@
 
 <h1>Snake Game</h1>
 
+
 <canvas id="game" width="400" height="400"></canvas>
 
 <div class="controls" aria-label="Game Controls">
@@ -60,7 +61,7 @@
   <button id="up" aria-label="Move Up">▲</button>
   <button class="empty" disabled></button>
   <button id="left" aria-label="Move Left">◀</button>
-  <button class="empty" disabled></button>
+  <button id="pauseBtn">⏸</button>
   <button id="right" aria-label="Move Right">▶</button>
   <button class="empty" disabled></button>
   <button id="down" aria-label="Move Down">▼</button>
@@ -80,7 +81,8 @@
   const deadSound = document.getElementById('deadSound');
 
 
-
+	let highScore = localStorage.getItem('snakeHighScore') || 0;
+	highScore = parseInt(highScore);
   let snake = [{ x: 9, y: 9 }];
   let velocity = { x: 0, y: 0 };
   let food = { x: 5, y: 5 };
@@ -90,6 +92,12 @@
   const moveInterval = 150;
   let obstacles = [];
   let obstacleThreshold = 5;
+  let isPaused = false;
+	const pauseBtn = document.getElementById('pauseBtn');
+	pauseBtn.addEventListener('click', () => {
+	isPaused = !isPaused;
+	pauseBtn.textContent = isPaused ? '▶' : '⏸';
+	});
 
   function placeFood() {
     let valid = false;
@@ -140,6 +148,9 @@
     placeFood();
     lastMoveTime = 0;
     requestAnimationFrame(update);
+	
+	
+	
   }
 
   function draw() {
@@ -176,9 +187,21 @@
     ctx.fillStyle = '#333';
     ctx.font = '20px Arial';
     ctx.fillText(`Score: ${score}`, 10, 25);
+	
+	//Hi-score
+	ctx.fillStyle = '#333';
+	ctx.font = '20px Arial';
+	ctx.fillText(`Score: ${score}`, 10, 25);
+	ctx.fillText(`HiScore: ${highScore}`, 10, 45);
+	
   }
 
   function update(time) {
+	if (isPaused) {
+		requestAnimationFrame(update);
+		return;
+	}
+		
     if (!lastMoveTime) lastMoveTime = time;
     const delta = time - lastMoveTime;
     if (delta < moveInterval) {
@@ -205,6 +228,9 @@
     if (obstacles.some(o => o.x === head.x && o.y === head.y)) {
 		deadSound.play();
       alert(`Game Over! You hit an obstacle. Score: ${score}`);
+	  if (score > highScore) {
+		highScore = score;
+		localStorage.setItem('snakeHighScore', highScore);}
       resetGame();
       return;
     }
@@ -213,6 +239,9 @@
     if (snake.some(s => s.x === head.x && s.y === head.y)) {
 		deadSound.play();
       alert(`Game Over! Your score: ${score}`);
+	  if (score > highScore) {
+		highScore = score;
+		localStorage.setItem('snakeHighScore', highScore);}
       resetGame();
       return;
     }
@@ -267,6 +296,8 @@
       case 'ArrowRight': setDirection(1, 0); break;
     }
   });
+  
+  
 
   // Start
   resetGame();
